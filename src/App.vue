@@ -1,62 +1,90 @@
 <template>
-  <div id="app" class="container">
-    <h1>Conversor de Temperatura</h1>
+  <div class="container">
+    <h1>Convertidor de Distancia</h1>
 
-    <div class="form-group">
-      <label for="celsius">Ingrese grados Celsius:</label>
+    <div class="row">
+      <label for="km">Kilómetros (km)</label>
       <input
-        id="celsius"
+        id="km"
         type="number"
         step="any"
-        v-model.number="celsius"
-        placeholder="Ej: 25"
+        :value="inputValue"
+        @input="onKmInput"
       />
     </div>
 
-    <div class="resultados" v-if="celsius !== '' && celsius !== null">
-       <p :style="colorEstilo">Fahrenheit: {{ fahrenheit.toFixed(2) }} °F</p>
-       <p :style="colorEstilo">Kelvin: {{ kelvin.toFixed(2) }} K</p>
-    </div>
+    <p
+      v-if="showResults"
+      class="result"
+      :style="{ color: store.resultColor }"
+    >
+      Metros (m): {{ store.metersFormatted }}
+    </p>
 
-    <hr />
+    <p
+      v-if="showResults"
+      class="result"
+      :style="{ color: store.resultColor }"
+    >
+      Millas (mi): {{ store.milesFormatted }}
+    </p>
 
-    <p class="respuestas">Respuestas: 1: C // 2: C // 3: A</p>
+    <p class="answers">
+      respuestas: 1:c 2:b 3:c 4:a 5:b
+    </p>
   </div>
 </template>
 
-<script>
-export default {
-  name: 'App',
-  data() {
-    return { celsius: '' }
-  },
-  computed: {
-    fahrenheit() { return this.celsius * 9 / 5 + 32 },
-    kelvin() { return parseFloat(this.celsius) + 273.15 },
-    colorEstilo() {
-      const val = parseFloat(this.celsius)
-      if (isNaN(val)) return {}
-      if (val <= 0) return { color: 'blue' }
-      if (val > 0 && val < 15) return { color: 'magenta' }
-      return { color: 'red' }
-    }
-  }
+<script setup>
+import { ref, computed } from "vue";
+import { useDistanceStore } from "./stores/distance.store";
+
+const store = useDistanceStore();
+
+const inputValue = ref("");
+
+const isOnlyDash = computed(() => inputValue.value === "-");
+
+const showResults = computed(() => {
+  return inputValue.value !== "" && !isOnlyDash.value;
+});
+
+function onKmInput(e) {
+  const value = e.target.value;
+  inputValue.value = value;
+
+  store.setKilometers(value);
 }
 </script>
 
-
 <style>
-body { font-family: Arial, sans-serif; margin: 30px; }
+.container {
+  max-width: 700px;
+  margin: 40px auto;
+  font-family: Arial, sans-serif;
+  text-align: center;
+}
 
-.container { max-width: 500px; margin: auto; text-align: left; }
+.row {
+  margin: 20px 0;
+}
 
-label { font-weight: bold; margin-top: 10px; display: block; }
+label {
+  margin-right: 10px;
+}
 
-input { padding: 8px; margin-top: 5px; margin-bottom: 15px; width: 100%; font-size: 1rem; }
+input {
+  width: 160px;
+  padding: 6px 8px;
+}
 
-.resultados p { font-size: 1.2rem; font-weight: bold; }
+.result {
+  font-weight: 700;
+  margin: 10px 0;
+}
 
-hr { margin: 25px 0; }
-
-.respuestas { font-size: 1.1rem; font-weight: 600; }
+.answers {
+  margin-top: 30px;
+  color: #444;
+}
 </style>
